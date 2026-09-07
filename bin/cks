@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+BASE=/etc/cks-wsl2-dual-lab
+source "$BASE/common.sh"
+case "${1:-help}" in
+  doctor) doctor ;;
+  start|stop|reset|status) source "$BASE/minikube.sh"; "minikube_$1" ;;
+  kubeadm-start|kubeadm-status|kubeadm-reset)
+    source "$BASE/kubeadm.sh"
+    case "$1" in
+      kubeadm-start) kubeadm_start;;
+      kubeadm-status) kubeadm_status;;
+      kubeadm-reset) kubeadm_reset;;
+    esac ;;
+  audit-on|audit-status|audit-off)
+    source "$BASE/audit.sh"
+    case "$1" in
+      audit-on) audit_on;;
+      audit-status) audit_status;;
+      audit-off) audit_off;;
+    esac ;;
+  destroy)
+    source "$BASE/minikube.sh"; source "$BASE/kubeadm.sh"
+    minikube_reset; kubeadm_reset ;;
+  *) cat <<'EOF'
+cks doctor
+cks start
+cks stop
+cks reset
+cks status
+cks kubeadm-start
+cks kubeadm-status
+cks kubeadm-reset
+cks audit-on
+cks audit-status
+cks audit-off
+cks destroy
+EOF
+    ;;
+esac
