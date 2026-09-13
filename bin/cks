@@ -19,6 +19,27 @@ case "${1:-help}" in
       audit-status) audit_status;;
       audit-off) audit_off;;
     esac ;;
+  security-install)
+    source "$BASE/security.sh"
+    trivy_install; echo; falco_install ;;
+  security-status)
+    source "$BASE/security.sh"
+    trivy_status; echo; falco_status; echo; apparmor_status ;;
+  trivy-scan)
+    source "$BASE/security.sh"
+    trivy_scan "${2:-}" ;;
+  falco-status)
+    source "$BASE/security.sh"; falco_status ;;
+  apparmor-status)
+    source "$BASE/security.sh"; apparmor_status ;;
+  apparmor-enable)
+    source "$BASE/security.sh"; apparmor_enable ;;
+  etcdctl-install)
+    source "$BASE/etcd.sh"; etcdctl_install ;;
+  etcdctl-status)
+    source "$BASE/etcd.sh"; etcdctl_status ;;
+  etcdctl)
+    source "$BASE/etcd.sh"; shift; etcdctl_run "$@" ;;
   destroy)
     source "$BASE/minikube.sh"; source "$BASE/kubeadm.sh"
     minikube_reset; kubeadm_reset ;;
@@ -34,6 +55,15 @@ cks kubeadm-reset
 cks audit-on
 cks audit-status
 cks audit-off
+cks security-install      # installs Trivy + Falco (best-effort on WSL2)
+cks security-status       # shows trivy/falco/apparmor status + WSL2 caveats
+cks trivy-scan <image>    # e.g. cks trivy-scan nginx:1.25
+cks falco-status
+cks apparmor-status        # diagnoses AppArmor state on WSL2
+cks apparmor-enable        # attempts the WSL2 AppArmor fix (lsm= + securityfs)
+cks etcdctl-install        # installs etcdctl matched to your running etcd version
+cks etcdctl-status         # quick etcdctl member list check
+cks etcdctl <args...>      # e.g. cks etcdctl snapshot save /tmp/snap.db
 cks destroy
 EOF
     ;;
