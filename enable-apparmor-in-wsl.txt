@@ -1,0 +1,19 @@
+ref: https://github.com/microsoft/WSL/issues/8709#issuecomment-3195645088
+
+1. Add the `kernelCommandLine` parameter to `%UserProfile%\.wslconfig` on Windows
+   [wsl2]
+   kernelCommandLine = lsm=apparmor,landlock,lockdown,yama,loadpin,safesetid,integrity,selinux,tomoyo
+
+2. Add the following line to `/etc/fstab` in the Linux guest:
+   ```
+   none     /sys/kernel/security securityfs defaults            0      0
+   ```
+
+3. Reload systemd daemon:
+   sudo systemctl daemon-reload
+
+4. Restart WSL2
+
+5. You can verify the LSM order and which LSM is enabled:
+   cat /sys/kernel/security/lsm
+
